@@ -2,11 +2,20 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   // 必须和 Cloudflare 控制台里的 Worker 项目名一致
   "name": "mikedsr-blog",
+  // 只处理 /api/*（访问统计），其余请求直接返回 dist 里的静态页面
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
   },
+  // 访问统计用的存储，部署时自动创建
+  "durable_objects": {
+    "bindings": [{ "name": "COUNTER", "class_name": "Counter" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Counter"] }],
   // 首次部署时自动绑定域名、创建 DNS 记录和 HTTPS 证书
   "routes": [
     { "pattern": "blog.mikedsr.top", "custom_domain": true }

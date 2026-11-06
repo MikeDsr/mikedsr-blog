@@ -2,17 +2,19 @@
 // 全站背景：那幅画固定在页面后面，内容在上面滚动。
 // 往下滚动时天色慢慢变成黄昏、星星浮现（--dusk 从 0 到 1）。
 // 首页从白天开始；其他页面一进来就是黄昏，保证文字清楚。
-import meadow from '../assets/theme/meadow.webp';
-import lavender from '../assets/theme/lavender.webp';
+// 先显示内嵌的模糊缩略图，清晰图下载完再淡入，网速慢时也不会是一片空白。
 import Starfield from './Starfield.astro';
+import { backdrop } from '../lib/backdrop';
+import { LQIP_MEADOW, LQIP_LAVENDER } from '../lib/lqip';
 
 interface Props { dusk?: number }
 const { dusk = 1 } = Astro.props;
+const bg = await backdrop();
 ---
-<div class="scene" aria-hidden="true" data-base-dusk={dusk}>
+<div class="scene" aria-hidden="true" data-base-dusk={dusk} style={`--lqip-d:url(${LQIP_MEADOW});--lqip-m:url(${LQIP_LAVENDER})`}>
   <picture>
-    <source media="(max-width: 700px)" srcset={lavender.src} />
-    <img src={meadow.src} alt="" class="scene-img" fetchpriority="high" />
+    <source media="(max-width: 700px)" srcset={bg.mobile} />
+    <img src={bg.desktop} srcset={bg.desktopSrcset} sizes="100vw" alt="" class="scene-img" fetchpriority="high" decoding="async" />
   </picture>
   <div class="scene-dusk"></div>
   <div class="scene-stars"><Starfield /></div>
@@ -20,15 +22,34 @@ const { dusk = 1 } = Astro.props;
 <script is:inline>
   (function () {
     var scene = document.currentScript.previousElementSibling;
+    var img = scene.querySelector('img');
+    if (img && !img.complete) {
+      img.classList.add('loading');
+      img.addEventListener('load', function () { img.classList.remove('loading'); }, { once: true });
+    }
     var base = parseFloat(scene.dataset.baseDusk || '1');
     var root = document.documentElement;
-    var ticking = false;
+    // 初始值写在根元素上（只此一次）；滚动时只改背景和导航栏两处，不让整页重算样式
+    root.style.setProperty('--dusk', String(base));
+    if (base >= 1) return; // 其他页面一直是黄昏，不用监听滚动
+    var bus = null, last = -1, ticking = false;
+    var h = window.innerHeight, w = window.innerWidth;
     function update() {
       ticking = false;
-      var t = Math.min(1, window.scrollY / (window.innerHeight * 0.75));
-      root.style.setProperty('--dusk', String(Math.max(base, t)));
+      var t = Math.max(base, Math.min(1, window.scrollY / (h * 0.75)));
+      t = Math.round(t * 200) / 200;
+      if (t === last) return;
+      last = t;
+      if (!bus) bus = document.querySelector('.bus');
+      scene.style.setProperty('--dusk', String(t));
+      if (bus) bus.style.setProperty('--dusk', String(t));
     }
     update();
     addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    // 手机工具栏收起只改变高度，不算真正的尺寸变化；转屏或改窗口宽度时才重新计算
+    addEventListener('resize', function () {
+      if (window.innerWidth !== w) { w = window.innerWidth; h = window.innerHeight; last = -1; update(); }
+    });
+    document.addEventListener('DOMContentLoaded', function () { last = -1; update(); });
   })();
 </script>

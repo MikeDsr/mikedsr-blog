@@ -13,6 +13,9 @@ const photo = findPhoto(post.data.cover) ?? defaultCover(post.id);
     src={photo}
     alt={post.data.coverAlt ?? ''}
     width={width}
+    widths={width > 800 ? [720, width] : [width]}
+    sizes={width > 800 ? '(max-width: 760px) 100vw, 1000px' : undefined}
+    quality={72}
     class:list={['cover-img', cls]}
     loading={eager ? 'eager' : 'lazy'}
   />

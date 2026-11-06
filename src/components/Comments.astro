@@ -1,27 +1,55 @@
 ---
-// 讨论区组件。等 CWD 后端（comment.mikedsr.top）部署好，
-// 并在项目里运行 npm install cwd-widget 之后，再到 PostLayout.astro 里启用它。
-interface Props { slug: string; siteId?: string }
-const { slug, siteId = 'blog' } = Astro.props;
+// 讨论区（CWD）。consts.ts 里的 COMMENTS_API 留空时什么都不显示。
+import { COMMENTS_API } from '../consts';
+
+interface Props { slug: string; title?: string; heading?: string; placeholder?: string }
+const { slug, title, heading = '讨论区', placeholder = '留下你的想法吧' } = Astro.props;
 ---
-<section class="comments" data-pagefind-ignore>
-  <h2>讨论区</h2>
-  <div id="cwd-comments" data-slug={slug} data-site={siteId}></div>
-</section>
+{COMMENTS_API && (
+  <section class="comments" data-pagefind-ignore>
+    <h2 class="comments-title">{heading}</h2>
+    <div class="comments-box" data-cwd data-api={COMMENTS_API} data-slug={slug} data-title={title} data-placeholder={placeholder}></div>
+  </section>
+)}
 
 <script>
   import CWDComments from 'cwd-widget';
 
-  const el = document.getElementById('cwd-comments');
-  if (el) {
-    const comments = new CWDComments({
+  // 评论框默认是 GitHub 那种纯黑配色，这里换成博客的夜空色：半透明靛蓝 + 围巾金
+  const NIGHT = `
+    .cwd-comments-container[data-theme] {
+      --cwd-primary: #F2B544; --cwd-primary-hover: #F8D88A;
+      --cwd-text: #EDEBF8; --cwd-text-secondary: #B9BBDA;
+      --cwd-bg: transparent; --cwd-bg-input: rgba(14, 18, 50, .45);
+      --cwd-bg-secondary: rgba(255, 255, 255, .06); --cwd-bg-reply: rgba(255, 255, 255, .05);
+      --cwd-bg-hover: rgba(255, 255, 255, .09); --cwd-bg-disabled: rgba(255, 255, 255, .05);
+      --cwd-bg-avatar: rgba(255, 255, 255, .1);
+      --cwd-border: rgba(255, 255, 255, .16); --cwd-border-light: rgba(255, 255, 255, .09);
+      --cwd-border-active: #F2B544;
+      --cwd-error: #FF8A8E; --cwd-bg-error: rgba(229, 72, 77, .16); --cwd-border-error: rgba(229, 72, 77, .55);
+      --cwd-radius: 12px;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    }
+    .cwd-btn-primary { color: #2A1E05; font-weight: 700; border-radius: 999px; padding: 8px 22px; }
+    .cwd-btn-primary:hover:not(:disabled) { background: #F8D88A; }
+    input, textarea { color: var(--cwd-text); }
+    input:focus, textarea:focus { border-color: #F2B544 !important; box-shadow: 0 0 0 3px rgba(242, 181, 68, .18) !important; outline: none; }
+  `;
+
+  for (const el of document.querySelectorAll<HTMLElement>('[data-cwd]')) {
+    const widget = new CWDComments({
       el,
-      apiBaseUrl: 'https://comment.mikedsr.top',
-      siteId: el.dataset.site,
+      apiBaseUrl: el.dataset.api!,
+      siteId: 'blog',
       postSlug: el.dataset.slug,
+      postTitle: el.dataset.title || document.title,
       lang: 'zh-CN',
       theme: 'dark',
+      commentPlaceholder: el.dataset.placeholder,
     });
-    comments.mount();
+    widget.mount();
+    const style = document.createElement('style');
+    style.textContent = NIGHT;
+    el.shadowRoot?.appendChild(style);
   }
 </script>

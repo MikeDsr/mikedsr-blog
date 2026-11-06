@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Intro from '../components/Intro.astro';
 import PostCard from '../components/PostCard.astro';
+import ProfileCard from '../components/ProfileCard.astro';
 import avatar from '../assets/theme/avatar.webp';
 import { getPosts } from '../lib/posts';
 import { SITE_TITLE, SINCE } from '../consts';
@@ -24,6 +25,7 @@ const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
       <p class="hero-meta">
         <span>MikeDsr，北航 2506</span>
         <span>{posts.length} 篇文章</span>
+        <span><b data-site-uv>—</b> 位旅人来过</span>
         <span data-sunsets data-since={SINCE}>看过的日落正在计算</span>
       </p>
     </div>
@@ -43,13 +45,16 @@ const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
       )}
     </div>
 
-    {posts.length === 0 ? (
-      <p class="empty">还没有文章。在 src/content/posts/ 里新建一个 .md 文件开始写第一篇。</p>
-    ) : (
-      <ol class="cards">
-        {posts.map((post) => <PostCard post={post} />)}
-      </ol>
-    )}
+    <div class="home-grid">
+      {posts.length === 0 ? (
+        <p class="empty">还没有文章。在 src/content/posts/ 里新建一个 .md 文件开始写第一篇。</p>
+      ) : (
+        <ol class="cards">
+          {posts.map((post) => <PostCard post={post} />)}
+        </ol>
+      )}
+      <ProfileCard class="profile-home" />
+    </div>
   </section>
 
   <script>

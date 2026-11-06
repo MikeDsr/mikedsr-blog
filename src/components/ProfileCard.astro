@@ -1,0 +1,43 @@
+---
+// 右侧名片：头像 + 一两句介绍，整张卡片点进去是「关于」页。文字在 src/consts.ts 的 AUTHOR_BIO 里改
+import { Image } from 'astro:assets';
+import avatar from '../assets/theme/avatar.webp';
+import { AUTHOR, AUTHOR_BIO, AUTHOR_GITHUB } from '../consts';
+
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+// AUTHOR_BIO 里每一行显示成一行，空一行就分成两段
+const paras = AUTHOR_BIO.trim().split(/\n\s*\n/).map((p) => p.split('\n').map((l) => l.trim()).filter(Boolean));
+---
+<aside class:list={['profile', cls]} aria-label="关于作者" data-pagefind-ignore>
+  <a class="profile-link" href="/about/">
+    <p class="profile-cmd" aria-hidden="true"><span>~ $</span> whoami</p>
+    <div class="profile-id">
+      <Image src={avatar} alt="" width={128} class="profile-avatar" />
+      <p class="profile-name">{AUTHOR}</p>
+    </div>
+    <div class="profile-bio">
+      {paras.map((lines) => <p>{lines.map((l, i) => <>{i > 0 && <br />}{l}</>)}</p>)}
+    </div>
+    <p class="profile-more">更多关于我 <span aria-hidden="true">→</span></p>
+  </a>
+  <p class="profile-links">
+    <a href={AUTHOR_GITHUB} target="_blank" rel="noopener">GitHub</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/archive/">归档</a>
+  </p>
+</aside>
+
+<script>
+  // 滑到这里时，名片从下方轻轻浮上来
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!still && 'IntersectionObserver' in window) {
+    for (const el of document.querySelectorAll<HTMLElement>('.profile')) {
+      el.classList.add('rise');
+      const io = new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { el.classList.add('in'); io.disconnect(); }
+      }, { threshold: 0.25 });
+      io.observe(el);
+    }
+  }
+</script>

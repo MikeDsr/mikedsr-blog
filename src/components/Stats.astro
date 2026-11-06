@@ -1,0 +1,16 @@
+---
+// 访问统计：每打开一页记一次，并把数字填进页面上带 data-site-pv / data-site-uv / data-page-pv 的地方。
+// 统计接口由 worker/index.ts 提供；本地 npm run dev 时没有这个接口，数字会保持「—」。
+---
+<script>
+  const fmt = (n: number) => n.toLocaleString('zh-CN');
+  const fill = (d: { pv: number; uv: number; page: number }) => {
+    document.querySelectorAll('[data-site-pv]').forEach((e) => (e.textContent = fmt(d.pv)));
+    document.querySelectorAll('[data-site-uv]').forEach((e) => (e.textContent = fmt(d.uv)));
+    document.querySelectorAll('[data-page-pv]').forEach((e) => (e.textContent = fmt(d.page)));
+  };
+  fetch(`/api/hit?path=${encodeURIComponent(location.pathname)}`, { method: 'POST' })
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then(fill)
+    .catch(() => {});
+</script>

@@ -1,10 +1,10 @@
 ---
 import type { MarkdownHeading } from 'astro';
+import 'katex/dist/katex.min.css'; // 公式样式只在文章页加载
 import BaseLayout from './BaseLayout.astro';
 import PostCover from '../components/PostCover.astro';
 import { fmtDate, readingMinutes, type Post } from '../lib/posts';
-// 讨论区：CWD 后端上线并 npm install cwd-widget 后，取消下面这行和文末那行的注释
-// import Comments from '../components/Comments.astro';
+import Comments from '../components/Comments.astro';
 
 interface Props { post: Post; headings: MarkdownHeading[]; prev?: Post; next?: Post }
 const { post, headings, prev, next } = Astro.props;
@@ -15,7 +15,7 @@ const minutes = readingMinutes(post.body);
 <BaseLayout title={title} description={description} wide>
   <article class="post" data-pagefind-body>
     <figure class="post-cover" data-pagefind-ignore>
-      <PostCover post={post} width={1400} eager />
+      <PostCover post={post} width={1200} eager />
     </figure>
     <header class="post-head">
       {series && <p class="post-series">《{series}》系列</p>}
@@ -25,20 +25,23 @@ const minutes = readingMinutes(post.body);
         <div><dt>发布</dt><dd><time datetime={date.toISOString()}>{fmtDate(date)}</time></dd></div>
         {updated && <div><dt>更新</dt><dd>{fmtDate(updated)}</dd></div>}
         <div><dt>阅读</dt><dd>约 {minutes} 分钟</dd></div>
+        <div><dt>被读过</dt><dd><span data-page-pv>—</span> 次</dd></div>
         {tags.length > 0 && (
           <div><dt>标签</dt><dd>{tags.map((t) => <a href={`/tags/${t}/`}>#{t}</a>)}</dd></div>
         )}
       </dl>
     </header>
 
-    {toc.length > 0 && (
-      <nav class="toc" aria-label="目录" data-pagefind-ignore>
-        <p class="toc-title">目录</p>
-        <ol>
-          {toc.map((h) => <li class={`toc-d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>)}
-        </ol>
-      </nav>
-    )}
+    <div class="post-side">
+      {toc.length > 0 && (
+        <nav class="toc" aria-label="目录" data-pagefind-ignore>
+          <p class="toc-title">目录</p>
+          <ol>
+            {toc.map((h) => <li class={`toc-d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>)}
+          </ol>
+        </nav>
+      )}
+    </div>
 
     <div class="prose"><slot /></div>
 
@@ -48,6 +51,6 @@ const minutes = readingMinutes(post.body);
         {prev ? <a class="pager-link pager-next" href={`/posts/${prev.id}/`}><span>下一篇</span>{prev.data.title}</a> : <span />}
       </nav>
     )}
-    {/* <Comments slug={`/posts/${post.id}/`} /> */}
+    <Comments slug={`/posts/${post.id}/`} title={title} />
   </article>
 </BaseLayout>

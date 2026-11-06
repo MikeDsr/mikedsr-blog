@@ -1,0 +1,22 @@
+---
+// 「关于」页的外壳：头像、名字、一句话，下面是 src/pages/about.md 的正文和留言板
+import { Image } from 'astro:assets';
+import BaseLayout from './BaseLayout.astro';
+import Comments from '../components/Comments.astro';
+import avatar from '../assets/theme/avatar.webp';
+
+const { frontmatter } = Astro.props;
+---
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+  <article class="about">
+    <header class="about-head">
+      <Image src={avatar} alt="MikeDsr 的头像" width={224} class="about-avatar" loading="eager" />
+      <div>
+        <h1 class="page-title">{frontmatter.name ?? frontmatter.title}</h1>
+        {frontmatter.tagline && <p class="page-sub">{frontmatter.tagline}</p>}
+      </div>
+    </header>
+    <div class="prose"><slot /></div>
+    <Comments slug="/about/" title="留言板" heading="留言板" placeholder="路过的旅人，留一句话吧" />
+  </article>
+</BaseLayout>
