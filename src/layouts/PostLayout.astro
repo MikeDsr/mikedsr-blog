@@ -15,7 +15,7 @@ const minutes = readingMinutes(post.body);
 <BaseLayout title={title} description={description} wide>
   <article class="post" data-pagefind-body>
     <figure class="post-cover" data-pagefind-ignore>
-      <PostCover post={post} width={1400} eager label={false} />
+      <PostCover post={post} width={1400} eager />
     </figure>
     <header class="post-head">
       {series && <p class="post-series">《{series}》系列</p>}

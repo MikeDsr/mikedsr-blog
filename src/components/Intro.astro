@@ -1,0 +1,51 @@
+---
+// 开场：全屏背景图，一行字逐字浮现，几秒后淡出进入正文。
+// 同一次浏览只播放一次；点击、回车或 Esc 可以跳过；不支持 JS 时也会按时间自动淡出。
+import meadow from '../assets/theme/meadow.webp';
+import lavender from '../assets/theme/lavender.webp';
+
+const lead = '四十四次日落之后';
+const rest = '，仍愿在符号与星光的间隙，为一朵玫瑰驻足';
+const chars = [...lead].map((c) => ({ c, b: true })).concat([...rest].map((c) => ({ c, b: false })));
+// 手机上在这两个逗号后换行
+const breaks = new Set([lead.length, lead.length + rest.indexOf('，', 1)]);
+const out = (0.8 + chars.length * 0.085 + 1.7).toFixed(2);
+---
+<div class="intro" id="intro" style={`--out:${out}s`}>
+  <picture>
+    <source media="(max-width: 700px)" srcset={lavender.src} />
+    <img src={meadow.src} alt="" class="intro-bg" fetchpriority="high" />
+  </picture>
+  <div class="intro-shade"></div>
+  <p class="intro-line" aria-label={lead + rest}>
+    {chars.map((ch, i) => (
+      <>
+        <span class:list={[{ b: ch.b }]} style={`--i:${i}`} aria-hidden="true">{ch.c}</span>
+        {breaks.has(i) && <br class="intro-br" />}
+      </>
+    ))}
+  </p>
+  <button class="intro-skip" type="button">进入</button>
+</div>
+<script is:inline>
+  (function () {
+    var el = document.getElementById('intro');
+    if (!el) return;
+    var root = document.documentElement;
+    try { sessionStorage.setItem('intro-seen', '1'); } catch (e) {}
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      el.classList.add('leave');
+      setTimeout(function () { el.remove(); root.classList.remove('intro-lock'); }, 800);
+    }
+    el.addEventListener('click', finish);
+    addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') finish();
+    });
+    el.addEventListener('animationend', function (e) {
+      if (e.target === el) { el.remove(); root.classList.remove('intro-lock'); }
+    });
+  })();
+</script>

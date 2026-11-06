@@ -1,7 +1,16 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import planet from '../assets/theme/planet.webp';
 ---
-<BaseLayout title="404">
-  <h1 class="page-title">SIGNAL LOST</h1>
-  <p>这条走线没有接到任何元件。<a href="/">回到首页</a></p>
+<BaseLayout title="迷路了">
+  <section class="lost">
+    <Image src={planet} alt="小王子站在小星球上，远处另一颗星球上开着一朵玫瑰" width={520} class="lost-img" />
+    <div>
+      <p class="lost-code">404</p>
+      <h1 class="page-title">你飞到了另一颗星球</h1>
+      <p class="page-sub">这里没有你要找的页面，只有一朵玫瑰。</p>
+      <p><a class="btn" href="/">回到首页</a></p>
+    </div>
+  </section>
 </BaseLayout>

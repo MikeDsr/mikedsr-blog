@@ -1,0 +1,27 @@
+---
+// 星空 + 几组用细线连起来的星座（像一张节点图）。位置由固定的随机种子决定。
+const W = 1600, H = 1000;
+let h = 44;
+const rnd = () => { h ^= h << 13; h >>>= 0; h ^= h >>> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
+const stars = [...Array(130)].map(() => ({
+  x: rnd() * W, y: rnd() * H * 0.8, r: 0.6 + rnd() * 1.5, o: 0.35 + rnd() * 0.6, tw: rnd() < 0.22, d: (rnd() * 5).toFixed(2),
+}));
+// 星座：狐狸座、B-612、0x2C（十六进制的 44）
+const groups = [
+  { label: 'Vulpecula', pts: [[1180, 150], [1250, 120], [1330, 160], [1300, 230], [1390, 260]] },
+  { label: 'B-612', pts: [[140, 300], [210, 250], [290, 280], [250, 360], [170, 380], [140, 300]] },
+  { label: '0x2C', pts: [[700, 90], [780, 60], [870, 90], [950, 50]] },
+];
+---
+<svg class="starfield" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice">
+  {groups.map((g) => (
+    <g class="constellation">
+      <polyline points={g.pts.map((p) => p.join(',')).join(' ')} />
+      {g.pts.map(([x, y]) => <circle cx={x} cy={y} r="2.2" />)}
+      <text x={g.pts[0][0] + 10} y={g.pts[0][1] - 14}>{g.label}</text>
+    </g>
+  ))}
+  {stars.map((s) => (
+    <circle class:list={['dot', { tw: s.tw }]} cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} style={`--o:${s.o.toFixed(2)};--d:${s.d}s`} />
+  ))}
+</svg>

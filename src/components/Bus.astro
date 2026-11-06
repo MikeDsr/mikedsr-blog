@@ -1,23 +1,16 @@
 ---
-interface Props { current?: string }
-const { current } = Astro.props;
-
-const boards = [
-  { id: 'home', label: '主页', href: 'https://mikedsr.top' },
-  { id: 'git', label: '代码', href: 'https://git.mikedsr.top' },
-  { id: 'note', label: '笔记', href: 'https://note.mikedsr.top' },
-  { id: 'blog', label: '博客', href: '/' },
-];
+import { Image } from 'astro:assets';
+import avatar from '../assets/theme/avatar.webp';
+import { SITE_TITLE } from '../consts';
 ---
 <header class="bus">
   <nav class="bus-inner">
-    <a href="/" class="brand">MikeDsr</a>
-    <span class="bus-sites">
-      {boards.map((b) => (
-        <a href={b.href} class:list={['bus-link', { active: b.id === current }]} aria-current={b.id === current ? 'page' : undefined}>{b.label}</a>
-      ))}
-    </span>
+    <a href="/" class="brand">
+      <Image src={avatar} alt="" width={64} class="brand-avatar" loading="eager" />
+      <span>{SITE_TITLE}</span>
+    </a>
     <span class="bus-spacer"></span>
+    <mike-term current="blog" paths="archive:/archive/,tags:/tags/,search:/search/"></mike-term>
     <a href="/archive/" class="bus-link">归档</a>
     <a href="/tags/" class="bus-link">标签</a>
     <a href="/search/" class="bus-link">搜索</a>

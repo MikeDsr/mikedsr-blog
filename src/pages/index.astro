@@ -1,33 +1,38 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Sky from '../components/Sky.astro';
+import Intro from '../components/Intro.astro';
 import PostCard from '../components/PostCard.astro';
-import { getPosts, fmtDate } from '../lib/posts';
+import avatar from '../assets/theme/avatar.webp';
+import { getPosts } from '../lib/posts';
+import { SITE_TITLE, SINCE } from '../consts';
 
 const posts = await getPosts();
 const tagCount = new Map<string, number>();
 for (const p of posts) for (const t of p.data.tags) tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
 const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
-const latest = posts[0]?.data.date;
 ---
-<BaseLayout wide bleed>
-  <section class="hero">
-    <Sky posts={posts} />
+<BaseLayout wide bleed intro dusk={0}>
+  <Intro slot="intro" />
+
+  <section class="hero" data-hero>
     <div class="hero-inner">
-      <h1 class="hero-title">MikeDsr<br />的博客</h1>
-      <p class="hero-sub">北航 2506，写课程、写代码，也写点别的。</p>
-      <p class="hero-stats">
+      <Image src={avatar} alt="MikeDsr 的头像" width={192} class="hero-avatar" loading="eager" />
+      <h1 class="hero-title">{SITE_TITLE}</h1>
+      <p class="hero-quote">仍愿在符号与星光的间隙，为一朵玫瑰驻足。</p>
+      <p class="hero-code" aria-hidden="true"><span class="kw">for</span> (<span class="kw">let</span> sunset = 1; sunset &lt;= 44; sunset++) <span class="fn">lookUp</span>();<span class="caret"></span></p>
+      <p class="hero-meta">
+        <span>MikeDsr，北航 2506</span>
         <span>{posts.length} 篇文章</span>
-        <span>{tags.length} 个标签</span>
-        {latest && <span>最近更新 {fmtDate(latest)}</span>}
+        <span data-sunsets data-since={SINCE}>看过的日落正在计算</span>
       </p>
     </div>
-    <p class="hero-hint">挂在电线上的纸条是最近的文章，点一张看看</p>
+    <p class="hero-hint">点一下天空，会落下星星；往下滑，天会慢慢黑</p>
   </section>
 
   <section class="home-list">
     <div class="list-head">
-      <h2 class="section-title">全部文章</h2>
+      <h2 class="section-title">文章</h2>
       {tags.length > 0 && (
         <div class="tag-strip" role="group" aria-label="按标签筛选文章">
           <button type="button" class="tag-chip" data-filter="" aria-pressed="true">全部<sup>{posts.length}</sup></button>
@@ -48,48 +53,44 @@ const latest = posts[0]?.data.date;
   </section>
 
   <script>
-    const strips = [...document.querySelectorAll<SVGAElement>('.strip')];
-    const cards = [...document.querySelectorAll<HTMLElement>('.card')];
-
-    // 纸条和下面的文章卡片联动高亮
-    function show(id: string | null) {
-      strips.forEach((s) => s.classList.toggle('on', s.dataset.id === id));
-      cards.forEach((c) => c.classList.toggle('on', c.dataset.id === id));
-    }
-    for (const el of [...strips, ...cards]) {
-      const id = el.dataset.id ?? null;
-      el.addEventListener('mouseenter', () => show(id));
-      el.addEventListener('focusin', () => show(id));
-      el.addEventListener('mouseleave', () => show(null));
-      el.addEventListener('focusout', () => show(null));
+    // 从博客开张那天算起，看过了多少次日落
+    const sun = document.querySelector<HTMLElement>('[data-sunsets]');
+    if (sun) {
+      const days = Math.floor((Date.now() - new Date(sun.dataset.since + 'T18:00:00+08:00').getTime()) / 86400000) + 1;
+      sun.textContent = days > 0 ? `这里已经看过 ${days} 次日落` : '第一次日落还没到';
     }
 
-    // 云层跟着鼠标轻轻移动
-    const sky = document.querySelector<HTMLElement>('[data-sky]');
-    const layers = [...document.querySelectorAll<SVGGElement>('.layer')];
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (sky && !still) {
-      sky.addEventListener('pointermove', (e) => {
-        const r = sky.getBoundingClientRect();
-        const dx = (e.clientX - r.left) / r.width - 0.5;
-        const dy = (e.clientY - r.top) / r.height - 0.5;
-        for (const l of layers) {
-          const d = Number(l.dataset.depth ?? 0);
-          l.style.transform = `translate(${-dx * d * 2}px, ${-dy * d}px)`;
+    if (hero) {
+      // 点一下天空，落下几颗星星
+      hero.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('a, button')) return;
+        const r = hero.getBoundingClientRect();
+        const n = still ? 1 : 6;
+        for (let i = 0; i < n; i++) {
+          const s = document.createElement('span');
+          s.className = 'star';
+          s.style.left = `${e.clientX - r.left}px`;
+          s.style.top = `${e.clientY - r.top}px`;
+          s.style.setProperty('--dx', `${(Math.random() - 0.5) * 160}px`);
+          s.style.setProperty('--dy', `${40 + Math.random() * 120}px`);
+          s.style.setProperty('--s', `${0.6 + Math.random() * 0.9}`);
+          s.style.animationDelay = `${i * 40}ms`;
+          hero.append(s);
+          s.addEventListener('animationend', () => s.remove());
         }
       });
-      sky.addEventListener('pointerleave', () => layers.forEach((l) => (l.style.transform = '')));
     }
 
-    // 标签筛选：卡片只留匹配的，电线上其余纸条变淡
+    // 标签筛选
+    const cards = [...document.querySelectorAll<HTMLElement>('.card')];
     const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
     for (const b of buttons) {
       b.addEventListener('click', () => {
         const tag = b.dataset.filter ?? '';
         buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        const match = (tags = '') => !tag || tags.split('|').includes(tag);
-        cards.forEach((c) => { c.hidden = !match(c.dataset.tags); });
-        strips.forEach((s) => s.classList.toggle('dim', !match(s.dataset.tags)));
+        cards.forEach((c) => { c.hidden = !!tag && !(c.dataset.tags ?? '').split('|').includes(tag); });
       });
     }
   </script>

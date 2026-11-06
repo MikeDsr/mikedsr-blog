@@ -1,13 +1,17 @@
 ---
+import '@fontsource/noto-serif-sc/600.css';
+import '@fontsource/noto-serif-sc/900.css';
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import Bus from '../components/Bus.astro';
 import Footer from '../components/Footer.astro';
+import Scene from '../components/Scene.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
-interface Props { title?: string; description?: string; wide?: boolean; bleed?: boolean }
-// bleed：首页大图需要贴住导航栏，去掉顶部留白
-const { title, description = SITE_DESCRIPTION, wide = false, bleed = false } = Astro.props;
+interface Props { title?: string; description?: string; wide?: boolean; bleed?: boolean; intro?: boolean; dusk?: number }
+// bleed：首页大图贴住导航栏；intro：播放开场动画（只有首页用）
+// dusk：背景一开始的黄昏程度，0 是白天，1 是黄昏（首页从 0 开始，随滚动变暗）
+const { title, description = SITE_DESCRIPTION, wide = false, bleed = false, intro = false, dusk = 1 } = Astro.props;
 const fullTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -16,7 +20,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#2E7AD6" />
+    <meta name="theme-color" content="#25316A" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -26,10 +30,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE_TITLE} />
     <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {intro && (
+      <script is:inline>
+        try {
+          if (sessionStorage.getItem('intro-seen')) document.documentElement.classList.add('intro-seen');
+          else document.documentElement.classList.add('intro-lock');
+        } catch (e) {}
+      </script>
+    )}
+    <script src="/mike-term.js" defer></script>
   </head>
   <body>
-    <Bus current="blog" />
+    <Scene dusk={dusk} />
+    <slot name="intro" />
+    <Bus />
     <main class:list={['container', { wide, bleed }]}><slot /></main>
     <Footer />
   </body>

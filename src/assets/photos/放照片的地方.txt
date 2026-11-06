@@ -1,7 +1,8 @@
-把照片放在这个文件夹里（jpg / png / webp 都可以）。
+把文章用的图片放在这个文件夹里（jpg / png / webp 都可以）。
 
-首页大图：文件名为 mikedsr-hero.webp（或 .jpg）
-文章封面：在文章开头写 cover: 文件名，例如
-  cover: mikedsr-cover-silk.webp
+在文章开头写 cover: 文件名，就会用它当封面，例如
+  cover: my-photo.jpg
+  coverAlt: 这张图的文字描述
 
-找不到对应照片时，页面会自动用代码生成的电路板插图代替，不会报错。
+主题图在 src/assets/theme/ 里，也可以直接用，例如 cover: cover-planet.webp
+没写 cover 的文章会自动从主题图里挑一张。

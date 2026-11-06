@@ -1,15 +1,14 @@
 ---
-// 文章封面：有照片用照片，没有就用生成的电路板插图
+// 文章封面：优先用文章开头 cover 指定的图片，没有就从主题图里挑一张
 import { Image } from 'astro:assets';
-import Cover from './Cover.astro';
-import { findPhoto } from '../lib/photos';
+import { findPhoto, defaultCover } from '../lib/photos';
 import type { Post } from '../lib/posts';
 
-interface Props { post: Post; width?: number; class?: string; eager?: boolean; label?: boolean }
-const { post, width = 640, class: cls, eager = false, label = true } = Astro.props;
-const photo = findPhoto(post.data.cover);
+interface Props { post: Post; width?: number; class?: string; eager?: boolean }
+const { post, width = 640, class: cls, eager = false } = Astro.props;
+const photo = findPhoto(post.data.cover) ?? defaultCover(post.id);
 ---
-{photo ? (
+{photo && (
   <Image
     src={photo}
     alt={post.data.coverAlt ?? ''}
@@ -17,6 +16,4 @@ const photo = findPhoto(post.data.cover);
     class:list={['cover-img', cls]}
     loading={eager ? 'eager' : 'lazy'}
   />
-) : (
-  <Cover seed={post.id} label={label ? post.data.tags[0] : ''} class={cls} />
 )}

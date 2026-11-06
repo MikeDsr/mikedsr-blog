@@ -1,17 +1,16 @@
 ---
-// 部署到 Cloudflare 时会提供当前提交的哈希；本地开发显示 local
+import { SITE_TITLE, AUTHOR } from '../consts';
 const sha = (process.env.WORKERS_CI_COMMIT_SHA ?? 'local').slice(0, 7);
-const built = new Date().toISOString().slice(0, 10);
+const year = new Date().getFullYear();
 ---
 <footer class="footer">
-  <div class="footer-silk">
-    <span>U4</span>
-    <span>blog.mikedsr.top</span>
-    <span>rev {sha}</span>
-    <span>{built}</span>
+  <div class="footer-left">
+    <span class="footer-title">{SITE_TITLE}</span>
+    <span>© {year} {AUTHOR}</span>
+    <span class="footer-dim">rev {sha}</span>
   </div>
-  <div class="footer-links">
-    <span>照片来自 <a href="https://unsplash.com/license">Unsplash</a></span>
+  <div class="footer-right">
+    <span class="footer-dim">插画来自网络，版权归原作者所有</span>
     <a href="/rss.xml">RSS 订阅</a>
   </div>
 </footer>
