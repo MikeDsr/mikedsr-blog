@@ -1,0 +1,7 @@
+把照片放在这个文件夹里（jpg / png / webp 都可以）。
+
+首页大图：文件名为 mikedsr-hero.webp（或 .jpg）
+文章封面：在文章开头写 cover: 文件名，例如
+  cover: mikedsr-cover-silk.webp
+
+找不到对应照片时，页面会自动用代码生成的电路板插图代替，不会报错。

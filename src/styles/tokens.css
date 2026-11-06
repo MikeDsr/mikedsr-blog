@@ -1,0 +1,17 @@
+/* 全站共享的设计变量：夏日天空 */
+:root {
+  --sky-deep: #2E7AD6;   /* 天顶蓝 */
+  --sky: #7EC6F3;        /* 天空蓝 */
+  --sky-pale: #EAF5FD;   /* 浅天色：页面底色 */
+  --dusk: #FFE6BE;       /* 地平线暖光 */
+  --ink: #1F2A44;        /* 墨色：正文、电线 */
+  --ink-soft: #5A6680;   /* 次要文字 */
+  --paper: #FFFFFF;      /* 卡片、纸面 */
+  --line: #D8E5F2;       /* 分隔线 */
+  --pink: #FF5C8A;       /* 强调色：链接悬停、标记 */
+  --pink-ink: #D93A6A;   /* 强调色深一档，用于小字链接 */
+  --sun: #FFC94D;        /* 阳光黄 */
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --font-label: Bahnschrift, "DIN Alternate", "Arial Narrow", var(--font-sans);
+  --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Consolas, monospace;
+}

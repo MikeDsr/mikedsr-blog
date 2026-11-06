@@ -1,0 +1,25 @@
+---
+// 文章卡片：封面（照片或插画）+ 标题摘要
+import PostCover from './PostCover.astro';
+import { fmtDate, readingMinutes, type Post } from '../lib/posts';
+
+interface Props { post: Post }
+const { post } = Astro.props;
+const url = `/posts/${post.id}/`;
+---
+<li class="card" data-id={post.id} data-tags={post.data.tags.join('|')}>
+  <a class="card-cover" href={url} tabindex="-1" aria-hidden="true">
+    <PostCover post={post} width={560} />
+  </a>
+  <div class="card-body">
+    <p class="card-meta">
+      <time datetime={post.data.date.toISOString()}>{fmtDate(post.data.date)}</time>
+      <span>约 {readingMinutes(post.body)} 分钟</span>
+    </p>
+    <h3 class="card-title"><a href={url}>{post.data.title}</a></h3>
+    <p class="card-desc">{post.data.description}</p>
+    {post.data.tags.length > 0 && (
+      <p class="card-tags">{post.data.tags.map((t) => <a href={`/tags/${t}/`}>#{t}</a>)}</p>
+    )}
+  </div>
+</li>

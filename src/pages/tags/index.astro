@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+const counts = new Map<string, number>();
+for (const p of posts) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+---
+<BaseLayout title="标签">
+  <h1 class="page-title">标签</h1>
+  <p class="page-sub">共 {tags.length} 个标签，按文章数排序。</p>
+  <nav class="tag-strip">
+    {tags.map(([t, n]) => <a href={`/tags/${t}/`} class="tag-chip">{t}<sup>{n}</sup></a>)}
+  </nav>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+// 文章封面：有照片用照片，没有就用生成的电路板插图
+import { Image } from 'astro:assets';
+import Cover from './Cover.astro';
+import { findPhoto } from '../lib/photos';
+import type { Post } from '../lib/posts';
+
+interface Props { post: Post; width?: number; class?: string; eager?: boolean; label?: boolean }
+const { post, width = 640, class: cls, eager = false, label = true } = Astro.props;
+const photo = findPhoto(post.data.cover);
+---
+{photo ? (
+  <Image
+    src={photo}
+    alt={post.data.coverAlt ?? ''}
+    width={width}
+    class:list={['cover-img', cls]}
+    loading={eager ? 'eager' : 'lazy'}
+  />
+) : (
+  <Cover seed={post.id} label={label ? post.data.tags[0] : ''} class={cls} />
+)}

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="搜索">
+  <h1 class="page-title">搜索</h1>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <div id="search"></div>
+  <p class="empty" id="search-hint" hidden>搜索索引只在 npm run build 之后生成，开发模式下这里是空的。</p>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof PagefindUI === 'undefined') {
+        document.getElementById('search-hint').hidden = false;
+        return;
+      }
+      new PagefindUI({ element: '#search', showSubResults: true, translations: { placeholder: '搜索文章' } });
+    });
+  </script>
+</BaseLayout>

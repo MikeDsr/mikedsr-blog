@@ -1,0 +1,25 @@
+---
+interface Props { current?: string }
+const { current } = Astro.props;
+
+const boards = [
+  { id: 'home', label: '主页', href: 'https://mikedsr.top' },
+  { id: 'git', label: '代码', href: 'https://git.mikedsr.top' },
+  { id: 'note', label: '笔记', href: 'https://note.mikedsr.top' },
+  { id: 'blog', label: '博客', href: '/' },
+];
+---
+<header class="bus">
+  <nav class="bus-inner">
+    <a href="/" class="brand">MikeDsr</a>
+    <span class="bus-sites">
+      {boards.map((b) => (
+        <a href={b.href} class:list={['bus-link', { active: b.id === current }]} aria-current={b.id === current ? 'page' : undefined}>{b.label}</a>
+      ))}
+    </span>
+    <span class="bus-spacer"></span>
+    <a href="/archive/" class="bus-link">归档</a>
+    <a href="/tags/" class="bus-link">标签</a>
+    <a href="/search/" class="bus-link">搜索</a>
+  </nav>
+</header>

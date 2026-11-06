@@ -1,0 +1,27 @@
+---
+// 讨论区组件。等 CWD 后端（comment.mikedsr.top）部署好，
+// 并在项目里运行 npm install cwd-widget 之后，再到 PostLayout.astro 里启用它。
+interface Props { slug: string; siteId?: string }
+const { slug, siteId = 'blog' } = Astro.props;
+---
+<section class="comments" data-pagefind-ignore>
+  <h2>讨论区</h2>
+  <div id="cwd-comments" data-slug={slug} data-site={siteId}></div>
+</section>
+
+<script>
+  import CWDComments from 'cwd-widget';
+
+  const el = document.getElementById('cwd-comments');
+  if (el) {
+    const comments = new CWDComments({
+      el,
+      apiBaseUrl: 'https://comment.mikedsr.top',
+      siteId: el.dataset.site,
+      postSlug: el.dataset.slug,
+      lang: 'zh-CN',
+      theme: 'dark',
+    });
+    comments.mount();
+  }
+</script>

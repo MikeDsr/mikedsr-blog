@@ -1,16 +1,96 @@
 ---
----
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Sky from '../components/Sky.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, fmtDate } from '../lib/posts';
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+const posts = await getPosts();
+const tagCount = new Map<string, number>();
+for (const p of posts) for (const t of p.data.tags) tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
+const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
+const latest = posts[0]?.data.date;
+---
+<BaseLayout wide bleed>
+  <section class="hero">
+    <Sky posts={posts} />
+    <div class="hero-inner">
+      <h1 class="hero-title">MikeDsr<br />的博客</h1>
+      <p class="hero-sub">北航 2506，写课程、写代码，也写点别的。</p>
+      <p class="hero-stats">
+        <span>{posts.length} 篇文章</span>
+        <span>{tags.length} 个标签</span>
+        {latest && <span>最近更新 {fmtDate(latest)}</span>}
+      </p>
+    </div>
+    <p class="hero-hint">挂在电线上的纸条是最近的文章，点一张看看</p>
+  </section>
+
+  <section class="home-list">
+    <div class="list-head">
+      <h2 class="section-title">全部文章</h2>
+      {tags.length > 0 && (
+        <div class="tag-strip" role="group" aria-label="按标签筛选文章">
+          <button type="button" class="tag-chip" data-filter="" aria-pressed="true">全部<sup>{posts.length}</sup></button>
+          {tags.map(([t, n]) => (
+            <button type="button" class="tag-chip" data-filter={t} aria-pressed="false">{t}<sup>{n}</sup></button>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="empty">还没有文章。在 src/content/posts/ 里新建一个 .md 文件开始写第一篇。</p>
+    ) : (
+      <ol class="cards">
+        {posts.map((post) => <PostCard post={post} />)}
+      </ol>
+    )}
+  </section>
+
+  <script>
+    const strips = [...document.querySelectorAll<SVGAElement>('.strip')];
+    const cards = [...document.querySelectorAll<HTMLElement>('.card')];
+
+    // 纸条和下面的文章卡片联动高亮
+    function show(id: string | null) {
+      strips.forEach((s) => s.classList.toggle('on', s.dataset.id === id));
+      cards.forEach((c) => c.classList.toggle('on', c.dataset.id === id));
+    }
+    for (const el of [...strips, ...cards]) {
+      const id = el.dataset.id ?? null;
+      el.addEventListener('mouseenter', () => show(id));
+      el.addEventListener('focusin', () => show(id));
+      el.addEventListener('mouseleave', () => show(null));
+      el.addEventListener('focusout', () => show(null));
+    }
+
+    // 云层跟着鼠标轻轻移动
+    const sky = document.querySelector<HTMLElement>('[data-sky]');
+    const layers = [...document.querySelectorAll<SVGGElement>('.layer')];
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (sky && !still) {
+      sky.addEventListener('pointermove', (e) => {
+        const r = sky.getBoundingClientRect();
+        const dx = (e.clientX - r.left) / r.width - 0.5;
+        const dy = (e.clientY - r.top) / r.height - 0.5;
+        for (const l of layers) {
+          const d = Number(l.dataset.depth ?? 0);
+          l.style.transform = `translate(${-dx * d * 2}px, ${-dy * d}px)`;
+        }
+      });
+      sky.addEventListener('pointerleave', () => layers.forEach((l) => (l.style.transform = '')));
+    }
+
+    // 标签筛选：卡片只留匹配的，电线上其余纸条变淡
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+    for (const b of buttons) {
+      b.addEventListener('click', () => {
+        const tag = b.dataset.filter ?? '';
+        buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        const match = (tags = '') => !tag || tags.split('|').includes(tag);
+        cards.forEach((c) => { c.hidden = !match(c.dataset.tags); });
+        strips.forEach((s) => s.classList.toggle('dim', !match(s.dataset.tags)));
+      });
+    }
+  </script>
+</BaseLayout>

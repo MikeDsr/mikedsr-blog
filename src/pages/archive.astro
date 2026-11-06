@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPosts, fmtDate } from '../lib/posts';
+
+const posts = await getPosts();
+// 由文章 id 算出一个固定的 7 位「短哈希」，纯装饰
+const shortHash = (s: string) => {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.codePointAt(0)!) >>> 0;
+  return h.toString(16).padStart(8, '0').slice(0, 7);
+};
+const years = [...new Set(posts.map((p) => p.data.date.getUTCFullYear()))];
+---
+<BaseLayout title="归档">
+  <h1 class="page-title">$ git log --oneline</h1>
+  <p class="page-sub">全部 {posts.length} 篇文章，按时间倒序。</p>
+  {years.map((y) => (
+    <section class="log-year">
+      <h2>{y}</h2>
+      <ol class="gitlog">
+        {posts.filter((p) => p.data.date.getUTCFullYear() === y).map((p) => (
+          <li>
+            <span class="sha">{shortHash(p.id)}</span>
+            <time>{fmtDate(p.data.date).slice(5)}</time>
+            <a href={`/posts/${p.id}/`}>{p.data.title}</a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+</BaseLayout>

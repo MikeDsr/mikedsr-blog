@@ -1,0 +1,118 @@
+---
+// 首页大图：赛璐璐风格的夏日天空 + 电线杆，最近的文章是挂在电线上的纸条（短册）
+import { fmtDate, type Post } from '../lib/posts';
+
+interface Props { posts: Post[] }
+const W = 1200, H = 560;
+const shown = Astro.props.posts.slice(0, 5);
+
+// 电线：从电线杆横担连到画面左边，二次贝塞尔下垂；控制点 x 取中点，所以 x 随 t 线性变化
+const poleX = 1040;
+const wires = [
+  { y0: 132, y1: 96, sag: 120 },
+  { y0: 146, y1: 128, sag: 150 },
+  { y0: 196, y1: 176, sag: 150 },
+  { y0: 210, y1: 214, sag: 170 },
+];
+const x1 = -40;
+const wirePath = (w: (typeof wires)[number]) => {
+  const yc = (w.y0 + w.y1) / 2 + w.sag;
+  return { d: `M${poleX} ${w.y0} Q${(poleX + x1) / 2} ${yc} ${x1} ${w.y1}`, yc };
+};
+const yAt = (w: (typeof wires)[number], x: number) => {
+  const { yc } = wirePath(w);
+  const t = (poleX - x) / (poleX - x1);
+  return (1 - t) ** 2 * w.y0 + 2 * (1 - t) * t * yc + t ** 2 * w.y1;
+};
+
+const papers = ['#FFFFFF', '#FFE3EC', '#E2F2FF', '#FFF2C6', '#E7F8E9'];
+const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+const strips = shown.map((post, i) => {
+  const w = wires[i % 2 === 0 ? 3 : 1];
+  const x = 520 + i * 105; // 纸条挂在右半边，左下角留给标题
+  const y = yAt(w, x);
+  return { post, x, y, color: papers[i % papers.length], delay: (i * 0.7) % 2.4 };
+});
+
+// 积云：几个圆叠成云团，底部一层浅蓝做赛璐璐阴影
+const cloud = (cx: number, cy: number, s: number) => ({
+  cx, cy, s,
+  puffs: [[-90, 10, 55], [-35, -30, 70], [35, -45, 80], [100, -10, 60], [150, 20, 45], [-140, 30, 40], [0, 20, 70]] as [number, number, number][],
+});
+const clouds = [cloud(260, 300, 1.25), cloud(720, 250, 0.9), cloud(560, 420, 1.5), cloud(1000, 330, 0.8)];
+---
+<div class="sky" data-sky>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" role="group" aria-label="最近文章">
+    <defs>
+      <linearGradient id="sky-g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2E7AD6" />
+        <stop offset=".55" stop-color="#7EC6F3" />
+        <stop offset="1" stop-color="#FFE6BE" />
+      </linearGradient>
+      <radialGradient id="sun-g">
+        <stop offset="0" stop-color="#FFF8DC" stop-opacity=".95" />
+        <stop offset=".35" stop-color="#FFF1B8" stop-opacity=".45" />
+        <stop offset="1" stop-color="#FFF1B8" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <rect width={W} height={H} fill="url(#sky-g)" />
+    <circle cx="880" cy="120" r="260" fill="url(#sun-g)" />
+    <circle cx="880" cy="120" r="46" fill="#FFFBEA" />
+
+    <g class="layer far" data-depth="6">
+      {clouds.slice(1, 2).concat(clouds.slice(3)).map((c) => (
+        <g transform={`translate(${c.cx} ${c.cy}) scale(${c.s})`}>
+          {c.puffs.map(([x, y, r]) => <circle cx={x + 8} cy={y + 14} r={r} fill="#C9E0F6" />)}
+          {c.puffs.map(([x, y, r]) => <circle cx={x} cy={y} r={r} fill="#FFFFFF" />)}
+        </g>
+      ))}
+    </g>
+    <g class="layer near" data-depth="14">
+      {[clouds[0], clouds[2]].map((c) => (
+        <g transform={`translate(${c.cx} ${c.cy}) scale(${c.s})`}>
+          {c.puffs.map(([x, y, r]) => <circle cx={x + 10} cy={y + 16} r={r} fill="#BFD8F2" />)}
+          {c.puffs.map(([x, y, r]) => <circle cx={x} cy={y} r={r} fill="#FFFFFF" />)}
+        </g>
+      ))}
+    </g>
+
+    <g class="city" aria-hidden="true">
+      {[...Array(26)].map((_, i) => {
+        const bw = 30 + ((i * 37) % 40), bh = 40 + ((i * 53) % 90);
+        return <rect x={i * 48 - 10} y={H - bh} width={bw} height={bh} fill="#6F98C8" />;
+      })}
+      {[...Array(18)].map((_, i) => {
+        const bw = 50 + ((i * 29) % 50), bh = 24 + ((i * 41) % 50);
+        return <rect x={i * 70 - 20} y={H - bh} width={bw} height={bh} fill="#3F5F92" />;
+      })}
+    </g>
+
+    <g class="pole" aria-hidden="true">
+      <rect x={poleX - 7} y="70" width="14" height={H - 70} fill="#1F2A44" />
+      <rect x={poleX - 70} y="126" width="120" height="8" fill="#1F2A44" />
+      <rect x={poleX - 60} y="190" width="100" height="8" fill="#1F2A44" />
+      {[poleX - 62, poleX - 30, poleX + 40].map((x) => <rect x={x - 3} y="118" width="7" height="10" rx="2" fill="#E9EEF5" />)}
+      <rect x={poleX + 14} y="240" width="26" height="40" rx="3" fill="#1F2A44" />
+    </g>
+
+    {wires.map((w) => <path class="wire" d={wirePath(w).d} />)}
+
+    <g class="birds" aria-hidden="true">
+      {[300, 332, 520].map((x) => {
+        const y = yAt(wires[0], x);
+        return <path d={`M${x - 9} ${y - 9} q 4 -8 10 -4 q 6 -4 8 2 l -6 4 z`} fill="#1F2A44" />;
+      })}
+    </g>
+
+    {strips.map((s) => (
+      <a href={`/posts/${s.post.id}/`} class="strip" data-id={s.post.id} data-tags={s.post.data.tags.join('|')}
+         style={`--ox:${s.x}px;--oy:${s.y}px;--delay:-${s.delay}s`}>
+        <line x1={s.x} y1={s.y} x2={s.x} y2={s.y + 18} class="string" />
+        <rect x={s.x - 22} y={s.y + 18} width="44" height="170" rx="3" fill={s.color} class="paper" />
+        <rect x={s.x - 22} y={s.y + 18} width="44" height="6" fill="#FF5C8A" opacity=".85" />
+        <text x={s.x + 1} y={s.y + 38} class="strip-title">{clip(s.post.data.title, 7)}</text>
+        <text x={s.x} y={s.y + 210} text-anchor="middle" class="strip-date">{fmtDate(s.post.data.date).slice(5)}</text>
+      </a>
+    ))}
+  </svg>
+</div>

@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // 必须和 Cloudflare 控制台里的 Worker 项目名一致
+  "name": "mikedsr-blog",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  // 首次部署时自动绑定域名、创建 DNS 记录和 HTTPS 证书
+  "routes": [
+    { "pattern": "blog.mikedsr.top", "custom_domain": true }
+  ],
+  // 关掉国内打不开的 workers.dev 地址
+  "workers_dev": false
+}
