@@ -34,6 +34,37 @@ const { slug, title, heading = '讨论区', placeholder = '留下你的想法吧
     .cwd-btn-primary:hover:not(:disabled) { background: #F8D88A; }
     input, textarea { color: var(--cwd-text); }
     input:focus, textarea:focus { border-color: #F2B544 !important; box-shadow: 0 0 0 3px rgba(242, 181, 68, .18) !important; outline: none; }
+
+    /* 排版：先看评论，再写评论。只改显示顺序，不动组件本身的逻辑
+       （旧浏览器不支持 :has 时会保持组件原来的顺序，功能不受影响） */
+    .cwd-comments-container { display: flex; flex-direction: column; }
+    .cwd-comments-header { order: 2; padding: 0; margin: 10px 0 12px; }
+    .cwd-comments-container > .cwd-error-inline,
+    .cwd-comments-container > .cwd-success-inline { order: 3; }
+    .cwd-comments-container > div:has(.cwd-comment-form) { order: 3; }
+
+    /* 紧凑一点 */
+    .cwd-comments-count { margin: 0 0 2px; font-size: 15px; }
+    .cwd-comment-list { min-height: 0; }
+    .cwd-comment-item { padding: 14px 0; }
+    .cwd-empty { padding: 16px 10px; }
+    .cwd-like { padding: 0; }
+    .cwd-like-button { flex-direction: row; gap: 6px; padding: 5px 16px; border: 1px solid var(--cwd-border-light) !important; border-radius: 999px; font-size: 13px; }
+    .cwd-like-icon { width: 18px; height: 18px; }
+    .cwd-comment-form { padding: 16px 18px; margin-bottom: 0; background: rgba(255, 255, 255, .03); }
+    .cwd-form-title { margin: 0 0 10px; font-size: 15px; }
+    .cwd-form-fields { gap: 10px; }
+    .cwd-form-row { gap: 10px; }
+    .cwd-form-input { padding: 7px 12px; }
+    .cwd-form-actions { margin-top: 12px; align-items: center; flex-wrap: wrap; }
+    /* 没配置表情包时，表情按钮那一行是空的，不占位置 */
+    .cwd-emotion-picker-container:empty { display: none; }
+    /* 提交按钮左边的小提示 */
+    .cwd-comment-form .cwd-form-actions::before {
+      content: "网址选填 · 邮箱只用来显示头像和接收回复提醒，不会公开";
+      margin-right: auto; font-size: 12px; line-height: 1.6; color: var(--cwd-text-secondary);
+    }
+    .cwd-success-inline { color: #A6E3B4; background: rgba(127, 191, 142, .14); border-color: rgba(127, 191, 142, .5); }
   `;
 
   for (const el of document.querySelectorAll<HTMLElement>('[data-cwd]')) {

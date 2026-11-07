@@ -154,7 +154,7 @@
           break;
         }
         case 'pwd': this.print(`${location.host}${location.pathname}`); break;
-        case 'whoami': this.print('MikeDsr，北航 2506。一个在符号与星光之间写代码的人。'); break;
+        case 'whoami': this.print('MikeDsr，北航 2506。'); break;
         case 'clear': this.out.textContent = ''; this.close(); break;
         case 'date': this.print(new Date().toLocaleString('zh-CN')); break;
         case 'echo': this.print(arg); break;

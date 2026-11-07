@@ -208,12 +208,28 @@ a.tag-chip:hover { color: var(--gold-soft); }
 .prose h3 { margin: 1.6em 0 .5em; font-family: var(--font-serif); font-size: 1.22rem; color: #F6F3FF; }
 .prose strong { color: #fff; }
 .prose img { max-width: 100%; height: auto; border-radius: 10px; }
+/* 单独一段的图片：居中，下一行用 *斜体* 写的文字就是图注 */
+.prose p:has(> img) { margin: 1.8em 0; text-align: center; }
+.prose p:has(> img) > img { display: block; margin: 0 auto; border-radius: 14px; border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 14px 40px rgba(10, 14, 40, .3); }
+.prose p:has(> img) > em { display: block; margin-top: 10px; font-style: normal; font-size: .85rem; line-height: 1.6; color: var(--muted); }
+/* 可以展开 / 收起的长代码 */
+.prose details { margin: 1.4em 0; border: 1px solid rgba(255, 255, 255, .14); border-radius: 12px; background: rgba(14, 18, 46, .35); overflow: hidden; }
+.prose summary { padding: 10px 16px; cursor: pointer; color: var(--gold-soft); font-size: .92rem; user-select: none; }
+.prose summary:hover { background: rgba(255, 255, 255, .05); }
+.prose details[open] > summary { border-bottom: 1px solid rgba(255, 255, 255, .1); }
+.prose details > pre { margin: 0; border: 0; border-radius: 0; max-height: 70vh; }
+/* 下载按钮 */
+.prose .download { margin: 1.2em 0; }
+.prose .download a { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; border: 1px solid rgba(242, 181, 68, .6); background: rgba(242, 181, 68, .1); color: var(--gold-soft); text-decoration: none; font-size: .92rem; }
+.prose .download a::before { content: '↓'; font-weight: 700; }
+.prose .download a:hover { background: rgba(242, 181, 68, .2); color: #fff; }
 .prose hr { border: 0; text-align: center; margin: 2.4em 0; }
 .prose hr::after { content: '✦  ✦  ✦'; color: var(--gold); letter-spacing: .4em; }
 .prose blockquote { margin: 1.4em 0; padding: 6px 20px; border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; background: rgba(255, 255, 255, .05); color: #D6D3EE; font-family: var(--font-serif); }
 .prose table { border-collapse: collapse; display: block; overflow-x: auto; font-size: .95rem; }
 .prose th, .prose td { border: 1px solid rgba(255, 255, 255, .14); padding: 6px 12px; }
 .prose th { background: rgba(255, 255, 255, .07); color: #fff; }
+.prose td:first-child, .prose th:first-child { white-space: nowrap; }
 .prose :not(pre) > code { font-family: var(--font-mono); background: rgba(242, 181, 68, .13); color: var(--gold-soft); padding: 1px 6px; border-radius: 6px; font-size: .86em; }
 .prose pre { position: relative; margin: 1.6em 0; padding: 32px 18px 16px; border-radius: 12px; background: rgba(14, 18, 46, .7) !important; border: 1px solid rgba(255, 255, 255, .08); overflow-x: auto; font-size: .875rem; line-height: 1.65; }
 .prose pre[data-language]::before { content: attr(data-language); position: absolute; top: 8px; right: 14px; font-size: .72rem; color: #9FA6CC; }
@@ -276,7 +292,7 @@ a.tag-chip:hover { color: var(--gold-soft); }
 @media (max-width: 600px) { .lost { grid-template-columns: 1fr; } .lost-img { max-width: 240px; } }
 
 /* ---------- 讨论区 ---------- */
-.comments { grid-area: comments; margin-top: 48px; padding: 20px 24px 8px; border-radius: 18px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--glass-border); }
+.comments { grid-area: comments; margin-top: 48px; padding: 20px 24px 22px; border-radius: 18px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--glass-border); }
 .comments-title { margin: 0 0 12px; font-family: var(--font-serif); font-weight: 900; font-size: 1.4rem; }
 .footer b { color: var(--gold-soft); font-weight: 600; }
 .hero-meta b { color: var(--gold-soft); font-weight: 600; }
