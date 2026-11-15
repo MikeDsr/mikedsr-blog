@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Intro from '../components/Intro.astro';
 import PostCard from '../components/PostCard.astro';
 import ProfileCard from '../components/ProfileCard.astro';
+import GameCard from '../components/GameCard.astro';
 import avatar from '../assets/theme/avatar.webp';
 import { getPosts } from '../lib/posts';
 import { SITE_TITLE, SINCE } from '../consts';
@@ -53,7 +54,10 @@ const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
           {posts.map((post) => <PostCard post={post} />)}
         </ol>
       )}
-      <ProfileCard class="profile-home" />
+      <div class="home-side">
+        <ProfileCard class="profile-home" />
+        <GameCard class="game-home" />
+      </div>
     </div>
   </section>
 

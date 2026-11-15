@@ -1,0 +1,37 @@
+---
+// 名片下方的小卡片：一张小封面 + 一句话，整块点进 OOpre 小游戏
+// 文案在 src/consts.ts 的 GAME_* 里改；换封面就替换 ../assets/theme/oopre-arena.jpg
+import { Image } from 'astro:assets';
+import cover from '../assets/theme/oopre-arena.jpg';
+import { GAME_URL, GAME_TITLE, GAME_TAGLINE, GAME_DESC } from '../consts';
+
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+---
+<aside class:list={['game', cls]} aria-label="推荐小游戏" data-pagefind-ignore>
+  <a class="game-link" href={GAME_URL} target="_blank" rel="noopener noreferrer">
+    <span class="game-cover">
+      <Image src={cover} alt={`${GAME_TITLE}：${GAME_TAGLINE}`} width={528} height={297} loading="lazy" />
+    </span>
+    <span class="game-body">
+      <span class="game-cmd" aria-hidden="true"><span>~ $</span> play</span>
+      <span class="game-title">{GAME_TAGLINE}</span>
+      <span class="game-desc">{GAME_DESC}</span>
+      <span class="game-go">进入 {GAME_TITLE} <span aria-hidden="true">↗</span></span>
+    </span>
+  </a>
+</aside>
+
+<script>
+  // 和名片一样：滑到这里时从下方轻轻浮上来
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!still && 'IntersectionObserver' in window) {
+    for (const el of document.querySelectorAll<HTMLElement>('.game')) {
+      el.classList.add('rise');
+      const io = new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { el.classList.add('in'); io.disconnect(); }
+      }, { threshold: 0.25 });
+      io.observe(el);
+    }
+  }
+</script>

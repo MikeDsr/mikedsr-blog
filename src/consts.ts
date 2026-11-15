@@ -18,3 +18,10 @@ export const AUTHOR_BIO = `🎓 北航 2025 级 CS 在读
 在代码与星光之间，
 为落日的余晖驻足。`;
 export const AUTHOR_GITHUB = 'https://github.com/MikeDsr';
+
+// 首页右栏名片下方的小卡片：通往 OOpre 小游戏。文案改这里，封面图换 src/assets/theme/oopre-arena.jpg
+export const GAME_TITLE = '誓约竞技场';
+export const GAME_URL = 'https://mikedsr.github.io/OOpre_Game/';
+export const GAME_TAGLINE = '累了吗，前往 OOpre 大陆来场魔法游戏吧';
+export const GAME_DESC =
+  '把北航 2026 OOpre 作业代码当成游戏后端，做成可视化、可对局的回合制小游戏。';
